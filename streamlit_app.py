@@ -13,7 +13,7 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 credentials = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(credentials)
 
-SHEET_NAME = "https://docs.google.com/spreadsheets/d/1zmpLnSErHLd8eDedtpfsKDX5-ajOpMN16i7mC_Z553k/edit?usp=sharing"
+SHEET_NAME = "data assignment1"
 sheet = client.open(SHEET_NAME).sheet1
 
 data = pd.DataFrame(sheet.get_all_records())
