@@ -2,4 +2,5 @@ streamlit
 pandas
 matplotlib
 seaborn
-streamlit-gsheets
+gspread
+oauth2client

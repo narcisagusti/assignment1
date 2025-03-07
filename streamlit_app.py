@@ -9,8 +9,9 @@ import time
 st.title("What are the survivors of the titanic in each class?")
 
 # Connect to Google Sheets
-conn = st.connection("gsheets", type=GSheetsConnection)
-data = conn.read(ttl="2m")  # Cache for 2 minutes
+conn = st.experimental_connection("gsheets", type="gspread")
+data = conn.read(ttl="2m")
+st.write(data)
 
 # Rename columns to match what your visualization code expects
 data = data.rename(columns={"Class": "class", "Survivors": "count"})
