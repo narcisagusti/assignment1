@@ -4,4 +4,3 @@ matplotlib
 seaborn
 gspread
 oauth2client
-streamlit-gsheets

@@ -4,72 +4,41 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import random
 import time
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-
-
-
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-credentials = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-client = gspread.authorize(credentials)
-
-SHEET_NAME = "data assignment1"
-sheet = client.open(SHEET_NAME).sheet1
-
-data = pd.DataFrame(sheet.get_all_records())
-
-st.write("✅ Data Loaded Successfully")
-st.dataframe(data)
-
-# Set up page title
-st.title("What are the survivors of the titanic in each class?")
 
 # Connect to Google Sheets
-conn = st.experimental_connection("gsheets", type="gspread")
+conn = st.connection("gsheets", type=GSheetsConnection)
 data = conn.read(ttl="2m")
-st.write(data)
 
-# Rename columns to match what your visualization code expects
+# Rename columns to match what your code is expecting
 data = data.rename(columns={"Class": "class", "Survivors": "count"})
 
-# Initialize session state to track time and button visibility
-if 'start_time' not in st.session_state:
-    st.session_state.start_time = 0
-if 'show_answer_button' not in st.session_state:
-    st.session_state.show_answer_button = False
-if 'chart_shown' not in st.session_state:
-    st.session_state.chart_shown = False
+st.title("What are the survivors of the titanic in each class?")
 
-# First button to display random chart
-if st.button("Click to display graph"):
-    st.session_state.start_time = time.time()
-    st.session_state.show_answer_button = True
-    st.session_state.chart_shown = True
-    
-    # Create visualizations
+# Create visualizations
+pie_chart, ax = plt.subplots()
+ax.pie(data["count"], labels=data["class"], autopct="%1.1f%%", colors=["blue", "green", "red"])
+ax.set_title("Survivors by Class (Pie Chart)")
+
+bar_chart, ax = plt.subplots()
+ax.bar(data["class"], data["count"], color=["blue", "green", "red"])
+ax.set_title("Survivors by Class (Bar Chart)")
+ax.set_xlabel("Class")
+ax.set_ylabel("Count")
+
+# Display buttons and handle interaction
+random_button = st.button("Click to display graph")
+start_time = 0
+
+if random_button:
+    start_time = time.time()
     graph = random.choice([1, 2])
-    
     if graph == 1:
-        # Pie chart
-        fig, ax = plt.subplots()
-        ax.pie(data["count"], labels=data["class"], autopct="%1.1f%%", colors=["blue", "green", "red"])
-        ax.set_title("Survivors by Class (Pie Chart)")
-        st.pyplot(fig)
+        st.pyplot(pie_chart)
     elif graph == 2:
-        # Bar chart
-        fig, ax = plt.subplots()
-        ax.bar(data["class"], data["count"], color=["blue", "green", "red"])
-        ax.set_title("Survivors by Class (Bar Chart)")
-        ax.set_xlabel("Class")
-        ax.set_ylabel("Count")
-        st.pyplot(fig)
+        st.pyplot(bar_chart)
 
-# Only show the answer button after a chart has been displayed
-if st.session_state.show_answer_button:
-    if st.button("I answered your question"):
-        end_time = time.time()
-        time_taken = end_time - st.session_state.start_time
-        st.write(f"It has taken you {time_taken:.2f} seconds to answer the question")
-        # Reset for next attempt
-        st.session_state.show_answer_button = False
-        st.session_state.chart_shown = False
+answer = st.button("Question answered")
+if answer and start_time > 0:
+    end_time = time.time()
+    time_taken = end_time - start_time
+    st.write(f"It has taken you {time_taken:.2f} seconds to answer the question")
