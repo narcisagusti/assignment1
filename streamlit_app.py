@@ -4,6 +4,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import random
 import time
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+
+
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+credentials = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+client = gspread.authorize(credentials)
+
+SHEET_NAME = "Your Google Sheet Name"
+sheet = client.open(SHEET_NAME).sheet1
+
+data = pd.DataFrame(sheet.get_all_records())
+
+st.write("✅ Data Loaded Successfully")
+st.dataframe(data)
 
 # Set up page title
 st.title("What are the survivors of the titanic in each class?")
